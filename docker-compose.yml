@@ -1,0 +1,58 @@
+version: "3.12"
+
+services:
+  db:
+    image: postgres:16.8-alpine3.21
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+    ports:
+      - "1001:5432"
+
+  redis:
+    image: redis:7.4.2-alpine3.21
+    ports:
+      - "2002:6379"
+
+  backend:
+    build: ./backend
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:3003"
+    volumes:
+      - ./backend:/app
+    ports:
+      - "3003:3003"
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - redis
+
+  celery:
+    build: ./backend
+    command: celery -A core worker -l INFO
+    volumes:
+      - ./backend:/app
+    env_file:
+      - ./.env
+    depends_on:
+      - backend
+      - redis
+
+  frontend:
+    build: ./frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "4004:5173"
+    environment:
+      - NODE_ENV=development
+    stdin_open: true
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
