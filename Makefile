@@ -1,14 +1,21 @@
 .PHONY: all build up down logs clean migrations migrate createsuperuser shell test
 
-# Start everything
-all: build up
+# Start everything (background mode)
+all: build up-detached
+
+# Start everything with logs (foreground mode)
+all-fg: build up
 
 # Build images
 build:
 	docker-compose build
 
-# Start services
+# Start services with logs (foreground mode)
 up:
+	docker-compose up
+
+# Start services in background
+up-detached:
 	docker-compose up -d
 
 # Stop services

@@ -1,4 +1,4 @@
-version: "3.12"
+version: "3.8"
 
 services:
   db:
@@ -40,19 +40,6 @@ services:
     depends_on:
       - backend
       - redis
-
-  frontend:
-    build: ./frontend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    ports:
-      - "4004:5173"
-    environment:
-      - NODE_ENV=development
-    stdin_open: true
-    depends_on:
-      - backend
 
 volumes:
   postgres_data:
